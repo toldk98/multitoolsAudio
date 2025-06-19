@@ -1,0 +1,9 @@
+.buildozer/
+__pycache__/
+translated_txt/
+final_fb2/
+converted_txt/
+chornilne_serce/
+build/
+audio_contert_to_txt/
+other/

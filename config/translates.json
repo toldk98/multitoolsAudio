@@ -1,0 +1,86 @@
+{
+  "ua": {
+    "MainApp": {
+      "tabs" : {
+            "AudioToTextApp": "MP3 в TXT",
+            "TXTTranslateApp": "переклад TXT",
+            "TXTToFB2App": "TXT в FB2",
+            "FB2ToMP3App": "FB2 в MP3",
+            "SettingsApp": "Налаштування",
+            "LogsApp": "Логи"
+      }
+    },
+    "FB2ToMP3App": {
+      "label": {
+        "file": "Файл: не вибрано",
+        "save_dir": "Тека для збереження: не вибрано",
+        "choose_voice": "Оберіть голос:",
+        "choose_speed": "Оберіть швидкість читання:",
+        "progress_parts": "Прогрес створення частин:",
+        "progress_merge": "Прогрес об'єднання:",
+        "time": "Час: 00:00:00"
+      },
+      "button": {
+        "choose_file": "Вибрати файл",
+        "choose_dir": "Вибрати теку",
+        "create_mp3": "Створити MP3",
+        "cancel": "Скасувати",
+        "toggle_log": "⯆ Показати лог"
+      }
+    },
+    "SettingsApp": {
+      "label": {
+        "app_translate": "Мова додатку",
+        "ffmpeg": "FFmpeg не встановлено!"
+      },
+      "button": {
+        "select": "Вибрати мову"
+      },
+      "collapsing_block": {
+        "settings_section": "Загальні налаштування"
+      }
+    }
+  },
+
+  "en": {
+    "MainApp": {
+      "tabs" : {
+            "AudioToTextApp": "MP3 to TXT",
+            "TxtTranslateApp": "TXT Translate",
+            "TxtToFb2App": "TXT to FB2",
+            "Fb2ToMp3App": "FB2 to MP3",
+            "SettingsApp": "Setting",
+            "LogsApp": "Logs"
+      }
+    },
+    "FB2ToMP3App": {
+      "label": {
+        "file": "File: not selected",
+        "save_dir": "Save directory: not selected",
+        "choose_voice": "Select voice:",
+        "choose_speed": "Select reading speed:",
+        "progress_parts": "Progress of parts creation:",
+        "progress_merge": "Merging progress:",
+        "time": "Time: 00:00:00"
+      },
+      "button": {
+        "choose_file": "Choose File",
+        "choose_dir": "Choose Directory",
+        "create_mp3": "Create MP3",
+        "cancel": "Cancel",
+        "toggle_log": "⯆ Show log"
+      }
+    },
+    "SettingsApp": {
+      "label": {
+        "ffmpeg": "FFmpeg is not installed!"
+      },
+      "button": {
+        "check": "Check FFmpeg"
+      },
+      "collapsing_block": {
+        "settings_section": "General setting"
+      }
+    }
+  }
+}

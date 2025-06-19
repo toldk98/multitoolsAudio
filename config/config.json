@@ -1,0 +1,36 @@
+{
+  "global": {
+    "language": "ua",
+    "theme": "minty"
+  },
+  "shared": {
+    "audio_save_dir": {
+      "apps": [
+        "fb2_to_mp3",
+        "mp3_to_txt"
+      ],
+      "value": "/home/user/AudioBooks"
+    },
+    "last_opened_file": {
+      "apps": [
+        "txt_translate_to_fb2",
+        "mp3_to_txt"
+      ],
+      "value": "/home/user/mybook.fb2"
+    }
+  },
+  "apps": {
+    "fb2_to_mp3": {
+      "created_audiobook_dir": "/home/toldk98/pyProjects/fb2_to_mp3/translated_txt",
+      "voice": "uk-UA-OstapNeural",
+      "speed": "+25%"
+    },
+    "mp3_to_txt": {
+      "model": "whisper-large",
+      "language_detection": true
+    },
+    "txt_translate_to_fb2": {
+      "output_format": "fb2"
+    }
+  }
+}
