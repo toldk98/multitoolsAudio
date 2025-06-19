@@ -77,7 +77,7 @@ class SettingsApp:
         self.combo = {}
         self.setup_ui()
 
-        self.context.register_language_listener(self.update_ui_language)
+        self.context.listener_manager.register_listener(self.update_ui_language, "language")
 
 
     # Перевірка наявності ffmpeg

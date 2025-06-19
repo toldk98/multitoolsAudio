@@ -14,9 +14,9 @@ class MainApp:
         # Глобальний контекст (дані між вкладками)
         self.context = AppContext()
         self.context.main_app_ref = self  # ← для зручного доступу
-        self.context.register_language_listener(self.update_tab_labels)
+        self.context.listener_manager.register_listener(self.update_tab_labels, "language")
 
-        self.current_lang_code = self.context.get_config("global_config").get("language")
+        self.current_lang_code = self.context.get_config("global_config").get("language", "ua")
 
         self.setup_ui()
         self.check_ffmpeg_warning()

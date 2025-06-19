@@ -8,3 +8,5 @@ build/
 audio_contert_to_txt/
 other/
 dist/
+git_add_new.sh
+git_update_existing.sh

@@ -15,7 +15,7 @@ class FB2ToMP3App:
         self.root = root
         self.root.update_idletasks()
         self.context = context  # зберігаємо посилання на context
-        self.context.register_config_listener(self.on_config_updated)
+        self.context.listener_manager.register_listener(self.on_config_updated, "config")
 
         self.input_file = ""
         self.voice = ""

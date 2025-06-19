@@ -15,12 +15,11 @@ class AppContext:
         self.translates_raw = {}
         self.languages_raw = {}
 
+        self.listener_manager = ListenerManager()
+
         self._load_config()
         self._load_translations()
         self._load_languages()
-
-        self._language_listeners = []
-        self._config_listeners = []
 
     # ---------- CONFIG ----------
 
@@ -64,17 +63,7 @@ class AppContext:
 
         # Якщо змінилась мова — повідомляємо слухачів
         if "language" in updates:
-            self.notify_language_change()
-
-    # def update_global_config(self, updates: dict):
-    #     """
-    #     Оновлює значення у глобальній секції config["global"] і зберігає у файл.
-    #     """
-    #     if "global" not in self.config_raw:
-    #         self.config_raw["global"] = {}
-    #
-    #     self.config_raw["global"].update(updates)
-    #     self.save_config()
+            self.listener_manager.notify_listeners('language')
 
     def update_app_config(self, app_name, updates: dict):
         if "apps" not in self.config_raw:
@@ -84,6 +73,8 @@ class AppContext:
 
         self.config_raw["apps"][app_name].update(updates)
         self.save_config()
+
+        self.listener_manager.notify_listeners('config', app_name)
 
     def save_config(self):
         with open(self.config_path, "w", encoding="utf-8") as f:
@@ -125,8 +116,7 @@ class AppContext:
 
     def get_languages(self) -> dict:
         """
-        Повертає словник усіх мов, наприклад:
-        { "ua": { "name": "Українська" }, "en": { "name": "Англійська" } }
+        Повертає словник усіх мов, наприклад: { "ua": { "name": "Українська" }, "en": { "name": "Англійська" } }
         """
         return self.languages_raw
 
@@ -142,28 +132,26 @@ class AppContext:
 
     # ---------- update -> if updated ----------
 
-    def register_language_listener(self, callback: callable):
-        """Реєструє функцію, яка буде викликана при зміні мови."""
-        if callback not in self._language_listeners:
-            self._language_listeners.append(callback)
+class ListenerManager:
+    def __init__(self):
+        self._listeners = {
+            'language': [],
+            'config': [],
+        }
 
-    def notify_language_change(self):
-        """Викликає всі callback'и, зареєстровані на зміну мови."""
-        for callback in self._language_listeners:
+    def register_listener(self, callback: callable, listener_type: str):
+        if listener_type not in self._listeners:
+            raise ValueError("Invalid listener type. Use 'language' or 'config'.")
+
+        if callback not in self._listeners[listener_type]:
+            self._listeners[listener_type].append(callback)
+
+    def notify_listeners(self, listener_type: str, *args):
+        if listener_type not in self._listeners:
+            raise ValueError("Invalid listener type. Use 'language' or 'config'.")
+
+        for callback in self._listeners[listener_type]:
             try:
-                callback()
+                callback(*args)
             except Exception as e:
-                print(f"[⚠️] Language listener error: {e}")
-
-    def register_config_listener(self, callback: callable):
-        """Реєструє функцію, яка викликається при зміні конфігурації."""
-        if callback not in self._config_listeners:
-            self._config_listeners.append(callback)
-
-    def notify_config_change(self, app_name: str):
-        """Викликає всі callback'и при зміні конфігурації конкретного додатку."""
-        for callback in self._config_listeners:
-            try:
-                callback(app_name)
-            except Exception as e:
-                print(f"[⚠️] Config listener error: {e}")
+                print(f"[⚠️] {listener_type.capitalize()} listener error: {e}")
