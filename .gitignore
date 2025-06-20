@@ -10,3 +10,5 @@ other/
 dist/
 git_add_new.sh
 git_update_existing.sh
+.env
+logs/

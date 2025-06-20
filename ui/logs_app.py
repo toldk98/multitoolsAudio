@@ -5,32 +5,70 @@ class LogsApp:
         self.root = root
         self.root.update_idletasks()
 
-        self.setup_ui()
+        self.context = context  # зберігаємо посилання на context
 
-    # Перевірка наявності ffmpeg
-    def check_ffmpeg(self):
-        """Check if ffmpeg is installed."""
-        if which("ffmpeg") is None:
-            messagebox.showerror("Помилка", "FFmpeg не знайдено. Будь ласка, встановіть ffmpeg.")
-            self.append_log("FFmpeg не знайдено. Скасування процесу.")
-            self.cancel_requested = True
-            self.timer_running = False
-            return False
-        return True
+        self.element_schema = {
+            "logs_text": {
+                "type": "text",
+                "translate": "logs",           # якщо потрібно, і є в translates.json
+                "group": "label",              # або "text", якщо зробиш окрему групу
+                "options": {
+                    "state": "disabled",       # readonly
+                    "wrap": "word"
+                },
+                "layout": {"fill": "both", "expand": True, "pady": 5}
+            },
+            "btn_save_logs": {
+                "type": "button",
+                "translate": "save_logs",
+                "group": "button",
+                "options": {
+                    "command": self.save_logs,
+                    "bootstyle": "PRIMARY"
+                },
+                "layout": {"fill": "x", "pady": 5}
+            }
+
+        }
+
+        self.setup_ui()
+        self.context.listener_manager.register_listener(self.display_logs, 'logs')
+        # self.context.listener_manager.notify_listeners('logs', self.display_logs())
+
 
     # GUI
     def setup_ui(self):
         frame = ttkb.Frame(self.root, padding=10)
-        frame.pack(fill=BOTH, expand=True)
+        frame.pack(fill="both", expand=True)
 
-        self.label_file = ttkb.Label(frame, text="Вкладка логів", anchor="w")
-        self.label_file.pack(fill=X, pady=5)
-    # функція для відкриття теки зі створеним MP3 файлом
-    @staticmethod
-    def open_directory(path):
-        if platform.system() == "Windows":
-            os.startfile(path)
-        elif platform.system() == "Darwin":  # macOS
-            subprocess.Popen(["open", path])
-        else:  # Linux and others
-            subprocess.Popen(["xdg-open", path])
+        self.widgets = UICreate.uiCreator(
+            tk=ttkb,
+            parent=frame,
+            schema=self.element_schema,
+            context=self.context,  # AppContext
+            app_name="SettingsApp"  # назва вкладки для translates.json
+        )
+
+        for name, widget in self.widgets.items():
+            setattr(self, name, widget)
+
+        self.display_logs()
+
+
+    def display_logs(self):
+        if "logs_text" not in self.widgets:
+            return
+
+        logs = "\n".join(self.context.logs)
+        widget = self.widgets["logs_text"]
+
+        widget.config(state="normal")
+        widget.delete("1.0", "end")
+        widget.insert("1.0", logs)
+        widget.config(state="disabled")
+
+    def save_logs(self):
+        if not self.context.logs:
+            messagebox.showinfo("ℹ️", "Логи порожні")
+        self.context.write_log_file()
+        messagebox.showinfo("Збережено", "Логи збережено у файл.")

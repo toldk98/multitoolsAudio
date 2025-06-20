@@ -1,6 +1,6 @@
 {
   "global": {
-    "language": "ua",
+    "language": "en",
     "theme": "minty"
   },
   "shared": {
@@ -22,8 +22,8 @@
   "apps": {
     "fb2_to_mp3": {
       "created_audiobook_dir": "/home/toldk98/pyProjects/fb2_to_mp3/translated_txt",
-      "voice": "uk-UA-OstapNeural",
-      "speed": "+25%"
+      "voice": "uk-UA-PolinaNeural",
+      "speed": "0%"
     },
     "mp3_to_txt": {
       "model": "whisper-large",

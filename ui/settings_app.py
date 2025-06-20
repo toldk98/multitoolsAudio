@@ -1,6 +1,14 @@
-from sympy import print_tree
-
 from init import *
+
+voice_options = [
+            "uk-UA-PolinaNeural",
+            "uk-UA-OstapNeural",
+            "en-US-GuyNeural",
+            "en-US-JennyNeural",
+            "de-DE-KatjaNeural"
+]
+
+speed_options = ["-50%", "-25%", "0%", "+25%", "+50%"]
 
 class SettingsApp:
     def __init__(self, root, context):
@@ -21,6 +29,12 @@ class SettingsApp:
             for code, lang in self.context.get_languages().items()
         ]
         self.selected_language = tk.StringVar()
+
+        # Default settings
+        fb2_config = self.context.get_config("fb2_to_mp3")
+
+        self.selected_voice = tk.StringVar(value=fb2_config.get("voice", "uk-UA-PolinaNeural"))
+        self.selected_speed = tk.StringVar(value=fb2_config.get("speed", "0%"))
 
         self.element_schema = {
             "settings_block": {
@@ -56,10 +70,18 @@ class SettingsApp:
                 "options": {"command": self.update_app_language},
                 "layout": {"fill": "x", "pady": 5}
             },
+            "fb2_to_mp3_block": {
+                "type": "collapsing_block",
+                "translate": "fb2_to_mp3_section",
+                "group": "collapsing_block",
+                "options": {},  # параметри для CollapsingFrame
+                "layout": {"fill": "x", "pady": 10}
+            },
             "label_save_dir": {  # label вибір теки
                 "type": "label",
                 "translate": "save_dir",
                 "group": "label",
+                "parent": "fb2_to_mp3_block",
                 "options": {"anchor": "w"},
                 "layout": {"fill": "x", "pady": 5}
             },
@@ -68,9 +90,51 @@ class SettingsApp:
                 "type": "button",
                 "translate": "choose_dir",
                 "group": "button",
+                "parent": "fb2_to_mp3_block",
                 "options": {"command": self.choose_directory, "bootstyle": "PRIMARY"},
                 "layout": {"fill": "x", "pady": 5}
             },
+            "label_choose_voice": {
+                "type": "label",
+                "translate": "choose_voice",
+                "group": "label",
+                "parent": "fb2_to_mp3_block",
+                "options": {"anchor": "w"},
+                "layout": {"fill": "x", "pady": (10, 0)}
+            },
+            "voice_menu": {
+                "type": "combobox",
+                "translate": "voice_menu",
+                "group": "combobox",
+                "parent": "fb2_to_mp3_block",
+                "options": {"textvariable": self.selected_voice, "values": voice_options, "state": "readonly"},
+                "layout": {"fill": "x", "pady": 5}
+            },
+            "label_choose_speed": {
+                "type": "label",
+                "translate": "choose_speed",
+                "group": "label",
+                "parent": "fb2_to_mp3_block",
+                "options": {"anchor": "w"},
+                "layout": {"fill": "x", "pady": (10, 0)}
+            },
+            "speed_menu": {
+                "type": "combobox",
+                "translate": "speed_menu",
+                "group": "combobox",
+                "parent": "fb2_to_mp3_block",
+                "options": {"textvariable": self.selected_speed, "values": speed_options, "state": "readonly"},
+                "layout": {"fill": "x", "pady": 5}
+            },
+            "btn_save_voice_speed": {
+                "type": "button",
+                "translate": "save_voice_speed",  # додай переклад у translates.json
+                "group": "button",
+                "parent": "fb2_to_mp3_block",
+                "options": {"command": self.save_voice_and_speed, "bootstyle": "SUCCESS"},
+                "layout": {"fill": "x", "pady": 10}
+            },
+
         }
 
         self.langs = self.context.get_languages()
@@ -79,6 +143,16 @@ class SettingsApp:
 
         self.context.listener_manager.register_listener(self.update_ui_language, "language")
 
+    def save_voice_and_speed(self):
+        voice = self.selected_voice.get()
+        speed = self.selected_speed.get()
+
+        self.context.update_app_config("fb2_to_mp3", {
+            "voice": voice,
+            "speed": speed
+        })
+
+        messagebox.showinfo("Збережено", f"Голос: {voice}\nШвидкість: {speed}")
 
     # Перевірка наявності ffmpeg
     def check_ffmpeg(self):
@@ -98,11 +172,12 @@ class SettingsApp:
             self.context.update_app_config("fb2_to_mp3", {
             "created_audiobook_dir": self.save_dir
             })
-            self.context.notify_config_change("fb2_to_mp3")
+            self.context.listener_manager.notify_listeners("config", "fb2_to_mp3")
+
     # GUI
     def setup_ui(self):
         frame = ttkb.Frame(self.root, padding=10)
-        frame.pack(fill=BOTH, expand=True)
+        frame.pack(fill="both", expand=True)
 
         self.widgets = UICreate.uiCreator(
             tk=ttkb,
@@ -124,6 +199,8 @@ class SettingsApp:
         # Зберегти мову, яку вибрав користувач
         self.context.update_global_config({"language": lang_code})
         # messagebox.showinfo("Налаштування", f"Мову збережено: {lang_code}")
+
+        self.context.add_log(f"[🈯] Мову інтерфейсу змінено на: {value}")
 
     def update_ui_language(self):
         UICreate.update_translations(

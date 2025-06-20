@@ -7,6 +7,7 @@ voice_options = [
             "en-US-JennyNeural",
             "de-DE-KatjaNeural"
         ]
+
 speed_options = ["-50%", "-25%", "0%", "+25%", "+50%"]
 
 class FB2ToMP3App:
@@ -31,22 +32,31 @@ class FB2ToMP3App:
         self.selected_voice = tk.StringVar(value="uk-UA-PolinaNeural")
         self.selected_speed = tk.StringVar(value="0%")
 
-        self.setup_ui()
-        self.update_save_dir_label()
 
-    def update_save_dir_label(self):
-        save_dir = self.context.get_config("fb2_to_mp3").get("created_audiobook_dir", "./")
-        self.save_dir = save_dir
-        self.widgets["label_save_dir"].config(text=f"Тека: {save_dir}")
+        self.setup_ui()
+        self.update_label()
+
+    def update_label(self):
+        config = self.context.get_config("fb2_to_mp3")
+        self.save_dir = self.context.get_config("fb2_to_mp3").get("created_audiobook_dir", "./")
+        self.voice = self.context.get_config("fb2_to_mp3").get("voice", "uk-UA-PolinaNeural")
+        self.speed = self.context.get_config("fb2_to_mp3").get("speed", "0%")
+
+        lang = self.context.get_current_language
+        get_t = lambda key: self.context.get_translate(lang, self.appname, "label", key, key)
+
+        self.widgets["label_save_dir"].config(text=f"{get_t('save_dir')}: {self.save_dir}")
+        self.widgets["label_voice"].config(text=f"{get_t('choose_voice')}: {self.voice}")
+        self.widgets["label_speed"].config(text=f"{get_t('choose_speed')}: {self.speed}")
 
     def on_config_updated(self, app_name):
         if app_name == "fb2_to_mp3":
-            self.update_save_dir_label()
+            self.update_label()
 
     # GUI
     def setup_ui(self):
         frame = ttkb.Frame(self.root, padding=10)
-        frame.pack(fill=BOTH, expand=True)
+        frame.pack(fill="both", expand=True)
 
         element_schema = {
             "label_file": { # label вибір файлу
@@ -70,36 +80,22 @@ class FB2ToMP3App:
                 "options": {"anchor": "w"},
                 "layout": {"fill": "x", "pady": 5}
             },
-            "label_choose_voice": {
+            "label_voice": {
                 "type": "label",
-                "translate": "choose_voice",
+                "translate": "voice",
                 "group": "label",
                 "options": {"anchor": "w"},
                 "layout": {"fill": "x", "pady": (10, 0)}
             },
-            "voice_menu": {
-                "type": "combobox",
-                "translate": "voice_menu",
-                "group": "combobox",
-                "options": {"textvariable": self.selected_voice, "values": voice_options, "state": "readonly"},
-                "layout": {"fill": "x", "pady": 5}
-            },
-            "label_choose_speed": {
+            "label_speed": {
                 "type": "label",
-                "translate": "choose_speed",
+                "translate": "speed",
                 "group": "label",
                 "options": {"anchor": "w"},
                 "layout": {"fill": "x", "pady": (10, 0)}
-            },
-            "speed_menu": {
-                "type": "combobox",
-                "translate": "speed_menu",
-                "group": "combobox",
-                "options": {"textvariable": self.selected_speed, "values": speed_options, "state": "readonly"},
-                "layout": {"fill": "x", "pady": 5}
             },
             "btn_create_mp3": {
-                # button вибір теки
+                # button створення аудіокниги
                 "type": "button",
                 "translate": "create_mp3",
                 "group": "button",
@@ -243,10 +239,10 @@ class FB2ToMP3App:
         self.output_dir = os.path.join(self.save_dir, filename)
         os.makedirs(self.output_dir, exist_ok=True)
         self.cancel_requested = False
-        self.btn_create_mp3.config(state="disabled")
-        self.btn_cancel.config(state="normal")
-        self.progbar_progress_parts["value"] = 0
-        self.progbar_progress_merge["value"] = 0
+        self.widgets["btn_create_mp3"].config(state="disabled")
+        self.widgets["btn_cancel"].config(state="normal")
+        self.widgets["progbar_progress_parts"]["value"] = 0
+        self.widgets["progbar_progress_merge"]["value"] = 0
         self.start_time = time.time()
         self.timer_running = True
         threading.Thread(target=self.create_audiobook).start()
@@ -286,7 +282,7 @@ class FB2ToMP3App:
             output_file = os.path.join(self.output_dir, f"{idx + 1:03}.mp3")
             # self.append_log(f"Створюється частина {idx + 1}...")
             await communicate.save(output_file)
-            self.progbar_progress_parts["value"] = ((idx + 1) / len(text_parts)) * 100
+            self.widgets["progbar_progress_parts"]["value"] = ((idx + 1) / len(text_parts)) * 100
             # self.append_log(f"Озвучено частину {idx + 1}")
 
     # функція для відкриття теки зі створеним MP3 файлом
@@ -306,7 +302,7 @@ class FB2ToMP3App:
 
         for idx, file in enumerate(files):
             combined += pydub.AudioSegment.from_mp3(file)
-            self.progbar_progress_merge["value"] = ((idx + 1) / len(files)) * 100
+            self.widgets["progbar_progress_merge"]["value"] = ((idx + 1) / len(files)) * 100
             # self.append_log(f"Додається частина {idx+1} до фінального файлу...")
 
         final_path = os.path.join(self.save_dir, "final_audiobook.mp3")
@@ -318,7 +314,7 @@ class FB2ToMP3App:
 
         # open_directory(self.save_dir)
 
-    # функція для створення аудіокниги з тексту зконвертованого з fb2 книги
+    # функція для створення аудіокниги з тексту конвертованого з fb2 книги
     def create_audiobook(self):
         if not self.fb2_file:
             messagebox.showwarning("Помилка", "Будь ласка, оберіть FB2 або TXT файл.")
@@ -370,8 +366,8 @@ class FB2ToMP3App:
                         self.merge_audio_parts()
 
                 finally:
-                    self.root.after(0, lambda: self.btn_create_mp3.config(state="normal"))
-                    self.root.after(0, lambda: self.btn_cancel.config(state="disabled"))
+                    self.root.after(0, lambda: self.widgets["btn_create_mp3"].config(state="normal"))
+                    self.root.after(0, lambda: self.widgets["btn_cancel"].config(state="disabled"))
                     self.timer_running = False
 
             threading.Thread(target=process).start()

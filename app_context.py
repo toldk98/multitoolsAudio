@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from datetime import datetime
 
 class AppContext:
     def __init__(self):
@@ -130,13 +131,45 @@ class AppContext:
     def get_current_language(self) -> str:
         return self.config_raw.get("global", {}).get("language", "ua")
 
-    # ---------- update -> if updated ----------
+    # ---------- LOGS ----------
+
+    def add_log(self, message: str):
+        """
+        Додає повідомлення до логів та сповіщає слухачів.
+        """
+        self.logs.append(message)
+        self.listener_manager.notify_listeners('logs')
+
+    def write_log_file(self, filename=None):
+        """
+        Записує всі логи у файл. Якщо filename не вказано — створює з поточною датою.
+        """
+        if not self.logs:
+            print("[ℹ️] Логи порожні. Немає чого записувати.")
+            return
+
+        if filename is None:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = f"logs/log_{timestamp}.txt"
+
+        # Створення директорії, якщо вона відсутня
+        log_path = Path(filename)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(self.logs))
+            print(f"[✅] Логи збережено у файл: {log_path}")
+        except Exception as e:
+            print(f"[❌] Не вдалося зберегти логи: {e}")
+
 
 class ListenerManager:
     def __init__(self):
         self._listeners = {
             'language': [],
             'config': [],
+            'logs': []
         }
 
     def register_listener(self, callback: callable, listener_type: str):
