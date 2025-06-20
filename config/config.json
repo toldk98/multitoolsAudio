@@ -1,7 +1,18 @@
 {
   "global": {
-    "language": "en",
-    "theme": "minty"
+    "language": "ua",
+    "theme": "minty",
+    "audio_extensions": [
+      ".mp3",
+      ".wav",
+      ".m4a",
+      ".ogg",
+      ".webm"
+    ],
+    "book_extensions": [
+      ".txt",
+      ".fb2"
+    ]
   },
   "shared": {
     "audio_save_dir": {
@@ -26,8 +37,11 @@
       "speed": "0%"
     },
     "mp3_to_txt": {
-      "model": "whisper-large",
-      "language_detection": true
+      "audio_dir": "/home/toldk98/pyProjects/fb2_to_mp3/audio_contert_to_txt",
+      "created_txt_directory": "/home/toldk98/pyProjects/fb2_to_mp3/converted_txt",
+      "model": "small",
+      "language_detection": false,
+      "language": "ua"
     },
     "txt_translate_to_fb2": {
       "output_format": "fb2"

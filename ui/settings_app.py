@@ -21,18 +21,22 @@ class SettingsApp:
         self.config = self.context.get_config(self.appname)
 
         self.current_lang_code = self.context.get_config("global_config").get("language", "ua")
-
         self.language_name = self.context.get_language_name(self.current_lang_code)
         self.current_lang = f"{self.current_lang_code} — {self.language_name}"
+
         self.language_values = [
             f"{code} — {lang['name']}"
             for code, lang in self.context.get_languages().items()
         ]
         self.selected_language = tk.StringVar()
 
+        # Whisper мови (ключі з translates.json + "ru")
+        self.whisper_languages = list(self.context.translates_raw.keys()) + ["ru"]
+        self.whisper_lang_values = sorted(set(self.whisper_languages))
+        self.selected_whisper_language = tk.StringVar()
+
         # Default settings
         fb2_config = self.context.get_config("fb2_to_mp3")
-
         self.selected_voice = tk.StringVar(value=fb2_config.get("voice", "uk-UA-PolinaNeural"))
         self.selected_speed = tk.StringVar(value=fb2_config.get("speed", "0%"))
 
@@ -69,6 +73,37 @@ class SettingsApp:
                 "parent": "settings_block",
                 "options": {"command": self.update_app_language},
                 "layout": {"fill": "x", "pady": 5}
+            },
+            "mp3_to_txt_block": {
+                "type": "collapsing_block",
+                "translate": "mp3_to_txt_section",
+                "group": "collapsing_block",
+                "options": {},  # параметри для CollapsingFrame
+                "layout": {"fill": "x", "pady": 10}
+            },
+            "label_choose_model_lang": {
+                "type": "label",
+                "translate": "choose_whisper_lang",
+                "group": "label",
+                "parent": "mp3_to_txt_block",
+                "options": {"anchor": "w"},
+                "layout": {"fill": "x", "pady": (10, 0)}
+            },
+            "whisper_lang_menu": {
+                "type": "combobox",
+                "translate": "whisper_lang_menu",
+                "group": "combobox",
+                "parent": "mp3_to_txt_block",
+                "options": {"textvariable": self.selected_whisper_language, "values": "", "state": "readonly"},
+                "layout": {"fill": "x", "pady": 5}
+            },
+            "btn_save_whisper_lang": {
+                "type": "button",
+                "translate": "save_whisper_lang",
+                "group": "button",
+                "parent": "mp3_to_txt_block",
+                "options": {"command": self.save_whisper_language, "bootstyle": "SUCCESS"},
+                "layout": {"fill": "x", "pady": 10}
             },
             "fb2_to_mp3_block": {
                 "type": "collapsing_block",
@@ -143,36 +178,10 @@ class SettingsApp:
 
         self.context.listener_manager.register_listener(self.update_ui_language, "language")
 
-    def save_voice_and_speed(self):
-        voice = self.selected_voice.get()
-        speed = self.selected_speed.get()
-
-        self.context.update_app_config("fb2_to_mp3", {
-            "voice": voice,
-            "speed": speed
-        })
-
-        messagebox.showinfo("Збережено", f"Голос: {voice}\nШвидкість: {speed}")
-
     # Перевірка наявності ffmpeg
     def check_ffmpeg(self):
         """Check if ffmpeg is installed."""
         return which("ffmpeg") is not None
-
-        # Вибір теки для збереження
-    def choose_directory(self):
-        dir_path = filedialog.askdirectory(
-            title="Виберіть теку для збереження"
-        )
-        if dir_path:
-            self.save_dir = dir_path
-            # залишити поки що до завершення перевірки
-            # self.save_dir = dir_path[0] if isinstance(dir_path, list) else dir_path
-            self.widgets["label_save_dir"].config(text=f"Тека: {self.save_dir}")
-            self.context.update_app_config("fb2_to_mp3", {
-            "created_audiobook_dir": self.save_dir
-            })
-            self.context.listener_manager.notify_listeners("config", "fb2_to_mp3")
 
     # GUI
     def setup_ui(self):
@@ -184,22 +193,59 @@ class SettingsApp:
             parent=frame,
             schema=self.element_schema,
             context=self.context,         # AppContext
-            app_name="SettingsApp"        # назва вкладки для translates.json
+            app_name=self.appname        # назва вкладки для translates.json
         )
 
         for name, widget in self.widgets.items():
             setattr(self, name, widget)
 
+        # Whisper: встановлення поточного значення
+        self.widgets["whisper_lang_menu"]["values"] = self.whisper_lang_values
+        whisper_lang = self.context.get_config("mp3_to_txt").get("language", "uk")
+        self.selected_whisper_language.set(whisper_lang)
+        lang_name = self.context.get_language_name(whisper_lang, whisper_lang)
+        self.widgets["label_choose_model_lang"].config(text=f"Обрано для моделі: {lang_name} ({whisper_lang})")
+
         self.update_save_dir_label()
+
+    def save_voice_and_speed(self):
+        voice = self.selected_voice.get()
+        speed = self.selected_speed.get()
+
+        self.context.update_app_config("fb2_to_mp3", {
+            "voice": voice,
+            "speed": speed
+        })
+
+        # messagebox.showinfo("Збережено", f"Голос: {voice}\nШвидкість: {speed}")
+
+    def save_whisper_language(self):
+        lang = self.selected_whisper_language.get()
+        self.context.update_app_config("mp3_to_txt", {"language": lang})
+
+        lang_name = self.context.get_language_name(lang, lang)
+        self.widgets["label_choose_model_lang"].config(text=f"Обрано для моделі: {lang_name} ({lang})")
+
+        self.context.add_log(f"[🗣️] Whisper-мову збережено: {lang}")
+
+    # Вибір теки для збереження
+    def choose_directory(self):
+        dir_path = filedialog.askdirectory(
+            title="Виберіть теку для збереження"
+        )
+        if dir_path:
+            self.save_dir = dir_path
+            self.widgets["label_save_dir"].config(text=f"Тека: {self.save_dir}")
+            self.context.update_app_config("fb2_to_mp3", {
+            "created_audiobook_dir": self.save_dir
+            })
+            self.context.listener_manager.notify_listeners("config", "fb2_to_mp3")
 
     def update_app_language(self):
         value = self.selected_language.get()        # value приклад: "ua — Українська"
         lang_code = value.split(" — ")[0].strip()   # lang_code: "ua"
-
-        # Зберегти мову, яку вибрав користувач
-        self.context.update_global_config({"language": lang_code})
+        self.context.update_global_config({"language": lang_code}) # Зберегти мову, яку вибрав користувач
         # messagebox.showinfo("Налаштування", f"Мову збережено: {lang_code}")
-
         self.context.add_log(f"[🈯] Мову інтерфейсу змінено на: {value}")
 
     def update_ui_language(self):

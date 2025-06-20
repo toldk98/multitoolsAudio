@@ -19,4 +19,4 @@ from shutil import which
 from ui.ui_create import UICreate
 from ui.collapsing_frame import CollapsingFrame  # або з init якщо в тебе там
 
-
+from pathlib import Path
