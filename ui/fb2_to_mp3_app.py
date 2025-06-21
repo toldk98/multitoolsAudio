@@ -270,9 +270,9 @@ class FB2ToMP3App:
             messagebox.showerror("Помилка голосу", f"Голос '{voice}' не підтримується.")
 
         for idx, part in enumerate(text_parts):
-        #     if self.cancel_requested:
+            if self.cancel_requested:
         #         self.append_log("Створення скасовано користувачем.")
-        #         return
+                return
 
             rate = rate.strip()
             if not (rate.startswith('+') or rate.startswith('-')):
@@ -285,7 +285,7 @@ class FB2ToMP3App:
             self.widgets["progbar_progress_parts"]["value"] = ((idx + 1) / len(text_parts)) * 100
             # self.append_log(f"Озвучено частину {idx + 1}")
 
-    # функція для відкриття теки зі створеним MP3 файлом
+    # функція для відкриття теки зі створеним MP3 файлом - поки не працює
     @staticmethod
     def open_directory(path):
         if platform.system() == "Windows":

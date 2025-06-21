@@ -16,7 +16,7 @@ class MainApp:
         self.context.main_app_ref = self  # ← для зручного доступу
         self.context.listener_manager.register_listener(self.update_tab_labels, "language")
 
-        self.current_lang_code = self.context.get_config("global_config").get("language", "ua")
+        self.current_lang_code = self.context.get_config("global_config").get("language", "uk")
 
         self.setup_ui()
         self.check_ffmpeg_warning()

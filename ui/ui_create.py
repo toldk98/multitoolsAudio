@@ -1,3 +1,5 @@
+from jnius_config import options
+
 from .collapsing_frame import CollapsingFrame
 
 class UICreate:
@@ -12,7 +14,7 @@ class UICreate:
 
         # переклад, якщо context передано
         if context and app_name and "translate" in block_config and "group" in block_config:
-            lang = context.get_config("global_config").get("language", "ua")
+            lang = context.get_config("global_config").get("language", "uk")
             group = block_config["group"]
             trans_key = block_config["translate"]
             title = context.get_translate(lang, app_name, group, trans_key, default=trans_key)
@@ -35,6 +37,8 @@ class UICreate:
                 return tk.Progressbar(parent, **options)
             case 'text':
                 return tk.Text(parent, **options)
+            case 'checkbutton':
+                return tk.Checkbutton(parent, **options)
             case 'frame':
                 return tk.Frame(parent, **options)
             case _:
@@ -56,9 +60,18 @@ class UICreate:
 
                 if hasattr(frame, "toogle_btn"):
                     created[f"{key}_toggle"] = frame.toogle_btn
+            elif cfg.get("type") == "frame":
+                options = cfg.get('options', {})
+                layout = cfg.get("layout", {})
+                frame = tk.Frame(parent, **options)
+                frame.pack(**layout)
+                container_frames[key] = frame
+                created[key] = frame
 
         for key, cfg in schema.items():
             if cfg.get("type") == "collapsing_block":
+                continue  # вже створено
+            if cfg.get("type") == "frame":
                 continue  # вже створено
 
             widget_type = cfg['type']
@@ -80,7 +93,6 @@ class UICreate:
 
             parent_key = cfg.get("parent")
             real_parent = container_frames.get(parent_key, parent)
-
             widget = UICreate.create_element(tk, widget_type, real_parent, options)
 
             # Підтримка .set() (наприклад, для combobox)

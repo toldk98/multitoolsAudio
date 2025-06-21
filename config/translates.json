@@ -1,5 +1,5 @@
 {
-  "ua": {
+  "uk": {
     "MainApp": {
       "tabs" : {
             "AudioToTextApp": "MP3 в TXT",
@@ -8,6 +8,23 @@
             "FB2ToMP3App": "FB2 в MP3",
             "SettingsApp": "Налаштування",
             "LogsApp": "Логи"
+      }
+    },
+    "AudioToTextApp" : {
+      "label": {
+        "info": "Оберіть аудіофайли або теку для розпізнавання",
+        "selected_path": "Файли не вибрано",
+        "current_whisper_lang": "Мова моделі:",
+        "timer": "Час: 00:00:00"
+      },
+      "button": {
+        "select": "Обрати файли для конвертації",
+        "start_conversion": "Почати конвертацію",
+        "cancel": "Перервати конвертацію"
+      },
+      "checkbutton": {
+        "use_folder": "Обирати теку",
+        "lang_detect": "Автовибір мови"
       }
     },
     "FB2ToMP3App": {
@@ -31,18 +48,20 @@
     "SettingsApp": {
       "label": {
         "app_translate": "Мова додатку",
-        "ffmpeg": "FFmpeg не встановлено!",
-        "save_dir": "Тека для збереження: не вибрано",
+        "choose_whisper_lang": "Обери мову для Whisper",
+        "save_dir": "Тека для збереження: ",
         "choose_voice": "Оберіть голос:",
         "choose_speed": "Оберіть швидкість читання:"
       },
       "button": {
         "select": "Вибрати мову",
+        "save_whisper_lang": "Зберегти",
         "choose_dir": "Вибрати теку",
         "save_voice_speed": "Зберегти голос і швидкість"
       },
       "collapsing_block": {
         "settings_section": "Загальні налаштування",
+        "mp3_to_txt_section": "Налаштування MP3 в TXT",
         "fb2_to_mp3_section": "Налаштування для FB2 в MP3"
       }
     }
@@ -57,6 +76,23 @@
             "Fb2ToMp3App": "FB2 to MP3",
             "SettingsApp": "Setting",
             "LogsApp": "Logs"
+      }
+    },
+    "AudioToTextApp" : {
+      "label": {
+        "info": "Choose audio or folder for recognition",
+        "selected_path": "No files selected",
+        "current_whisper_lang": "Model language",
+        "timer": "Time: 00:00:00"
+      },
+      "button": {
+        "select": "Select files for conversion",
+        "start_conversion": "Start conversion",
+        "cancel": "Cancel conversion"
+      },
+      "checkbutton": {
+        "use_folder": "Сhoose a folder",
+        "lang_detect": "Language auto-selection"
       }
     },
     "FB2ToMP3App": {
@@ -80,18 +116,20 @@
     "SettingsApp": {
       "label": {
         "app_translate": "App language",
-        "ffmpeg": "FFmpeg is not installed!",
-        "save_dir": "Save directory: not selected",
+        "choose_whisper_lang": "choose language for whisper",
+        "save_dir": "Save directory: ",
         "choose_voice": "Select voice:",
         "choose_speed": "Select reading speed:"
       },
       "button": {
-        "check": "Check FFmpeg",
-        "choose_dir": "Choose Directory",
+        "select": "Confirm language",
+        "save_whisper_lang": "Confirm wisper language",
+        "choose_dir": "Confirm Directory",
         "save_voice_speed": "Save voice and speed"
       },
       "collapsing_block": {
         "settings_section": "General setting",
+        "mp3_to_txt_section": "Setting MP3 to TXT",
         "fb2_to_mp3_section": "Setting for FB2 to MP3"
 
       }

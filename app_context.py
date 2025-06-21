@@ -117,19 +117,19 @@ class AppContext:
 
     def get_languages(self) -> dict:
         """
-        Повертає словник усіх мов, наприклад: { "ua": { "name": "Українська" }, "en": { "name": "Англійська" } }
+        Повертає словник усіх мов, наприклад: { "uk": { "name": "Українська" }, "en": { "name": "Англійська" } }
         """
         return self.languages_raw
 
     def get_language_name(self, code: str, default="") -> str:
         """
-        Повертає назву мови за кодом (наприклад "ua" → "Українська")
+        Повертає назву мови за кодом (наприклад "uk" → "Українська")
         """
         return self.languages_raw.get(code, {}).get("name", default or code)
 
     # @property
     def get_current_language(self) -> str:
-        return self.config_raw.get("global", {}).get("language", "ua")
+        return self.config_raw.get("global", {}).get("language", "uk")
 
     # ---------- LOGS ----------
 
